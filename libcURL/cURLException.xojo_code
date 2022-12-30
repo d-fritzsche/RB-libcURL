@@ -1,0 +1,127 @@
+#tag Class
+Protected Class cURLException
+Inherits RuntimeException
+	#tag Method, Flags = &h1000
+		Sub Constructor(ErrantItem As libcURL.cURLHandle)
+		  If ErrantItem Is Nil Then 
+		    Me.Message = "Unknown error."
+		    Me.ErrorNumber = 0
+		    Return
+		  End If
+		  Me.ErrorNumber = ErrantItem.LastError
+		  Select Case True
+		  Case Me.ErrorNumber = libcURL.Errors.INIT_FAILED
+		    Me.Message = "Unknown failure while constructing a libcURL handle."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.MIME_ADD_FAILED
+		    Me.Message = "Unknown failure while adding a MIME message part."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.MIME_OWNER_MISSING
+		    Me.Message = "MIME messages must be owned by an instance of EasyHandle, but this message has outlived its owner."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.MIME_MANUAL_ONLY
+		    Me.Message = "The specified dictionary cannot be automatically converted into a MIME message."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.FEATURE_UNAVAILABLE
+		    Me.Message = "A required feature is not available in the installed version of libcURL."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.CALL_LOOP_DETECTED
+		    Me.Message = "MultiHandle.PerformOnce was invoked by a MultiHandle or EasyHandle event handler."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.INVALID_STATE
+		    Me.Message = "The requested operation is illegal in the current context."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.INVALID_LOCAL_FILE
+		    Me.Message = "The specified local file is invalid or does not exist."
+		    
+		  Case Not libcURL.IsAvailable
+		    Me.Message = "libcURL is not available or is an unsupported version."
+		    
+		  Case Me.ErrorNumber = libcURL.Errors.NOT_INITIALIZED
+		    ' This indicates that cURLHandle.Constructor has not yet run, but ErrantItem is not Nil (e.g. an error in Operator_Convert)
+		    ' cURLHandle.Constructor MUST be called from subclass constructors, else this error will be raised.
+		    Me.Message = "libcURL has not yet been initialized."
+		    
+		  Case ErrantItem IsA libcURL.ShareHandle
+		    Me.Message = libcURL.FormatShareError(Me.ErrorNumber)
+		    
+		  Case ErrantItem IsA libcURL.MultiHandle
+		    Me.Message = libcURL.FormatMultiError(Me.ErrorNumber)
+		    
+		  Case ErrantItem IsA libcURL.URLParser
+		    Me.Message = libcURL.FormatURLError(Me.ErrorNumber)
+		    
+		  Else
+		    Me.Message = libcURL.FormatError(Me.ErrorNumber) + " (" + libcURL.Errors.Name(Me.ErrorNumber) + ")"
+		    
+		  End Select
+		  If ErrantItem IsA libcURL.EasyHandle Then
+		    Dim easy As libcURL.EasyHandle = libcURL.EasyHandle(ErrantItem)
+		    If easy.ErrorBuffer <> "" Then
+		      Me.Message = Me.Message + EndOfLine + "Additional info: " + easy.ErrorBuffer
+		    End If
+		  End If
+		End Sub
+	#tag EndMethod
+
+
+	#tag ViewBehavior
+		#tag ViewProperty
+			Name="ErrorNumber"
+			Visible=false
+			Group="Behavior"
+			InitialValue="0"
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Index"
+			Visible=true
+			Group="ID"
+			InitialValue="-2147483648"
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Left"
+			Visible=true
+			Group="Position"
+			InitialValue="0"
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Message"
+			Visible=false
+			Group="Behavior"
+			InitialValue=""
+			Type="String"
+			EditorType="MultiLineEditor"
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Name"
+			Visible=true
+			Group="ID"
+			InitialValue=""
+			Type="String"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Super"
+			Visible=true
+			Group="ID"
+			InitialValue=""
+			Type="String"
+			EditorType=""
+		#tag EndViewProperty
+		#tag ViewProperty
+			Name="Top"
+			Visible=true
+			Group="Position"
+			InitialValue="0"
+			Type="Integer"
+			EditorType=""
+		#tag EndViewProperty
+	#tag EndViewBehavior
+End Class
+#tag EndClass
